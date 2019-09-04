@@ -2,28 +2,27 @@ package org.chamberlain.actions;
 
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
-import org.chamberlain.AStarPathFinding;
-import org.chamberlain.IconLoader;
+import org.chamberlain.Controller;
+import org.chamberlain.ResourceLoader;
 import org.chamberlain.model.Square;
 
 public class SetFinishPointAction extends AbstractAction {
 
-    private static String desc = "Sets the finish point";
+    private static final String DESC = "Sets the finish point";
 
     private Square currentSquare;
 
-    private AStarPathFinding aStar;
+    private final Controller aStar;
 
-    public SetFinishPointAction(AStarPathFinding aStar) {
-        super("Set finish point", IconLoader.createImageIcon("finish.png", ""));
+    public SetFinishPointAction(Controller aStar) {
+        super("Set finish point", ResourceLoader.createImageIcon("finish.png"));
         this.aStar = aStar;
-        putValue("ShortDescription", desc);
+        putValue("ShortDescription", DESC);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
-        for (Square square : this.aStar.getModel().getGrid()) {
-            square.setFinishPoint(false);
-        }
+        this.aStar.getModel().getGrid().forEach(square -> square.setFinishPoint(false));
         this.currentSquare.setFinishPoint(!this.currentSquare.isFinishPoint());
     }
 

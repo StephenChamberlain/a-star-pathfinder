@@ -9,7 +9,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -18,7 +17,6 @@ import java.io.PrintStream;
 import java.util.Date;
 
 import javax.swing.Action;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -42,8 +40,6 @@ import org.chamberlain.actions.SaveGridAction;
 import org.chamberlain.actions.ShowOpenGLCapsDialogAction;
 import org.chamberlain.dialogs.SplashDialog;
 import org.chamberlain.model.GridModel;
-import org.chamberlain.model.GridModelChangedEvent;
-import org.chamberlain.model.GridModelListener;
 import org.jdesktop.swingx.JXStatusBar;
 import org.jdesktop.swingx.plaf.basic.BasicStatusBarUI;
 
@@ -53,7 +49,7 @@ public class MainFrame extends JFrame {
 
     public static PrintStream ps = null;
 
-    AStarPathFinding aStarPathFinding;
+    Controller controller;
 
     public static MainFrame mainFrame;
 
@@ -100,33 +96,33 @@ public class MainFrame extends JFrame {
     private JMenu toolMenu;
 
     public MainFrame(SplashDialog dialog) {
-        setIconImage(IconLoader.createImageIcon("astar.png", "").getImage());
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
         GLCanvas canvas = new GLCanvas();
-        this.aStarPathFinding = new AStarPathFinding(canvas);
-        this.aStarPathFinding.addRegisteredListener(new GridModelListener() {
-            public void gridModelChanged(GridModelChangedEvent event) {
-                GridModel changedModel = event.getModel();
-                if (changedModel != null) {
-                    MainFrame.this.gridSize.setText(changedModel.getRows() + "x" + changedModel.getColumns());
-                    MainFrame.this.gridName.setText(changedModel.getGridName());
-                    MainFrame.this.setTitle("A* Pathfinder (" + changedModel.getGridName() + ")");
-                }
+        this.controller = new Controller(canvas);
+        this.controller.addRegisteredListener(event -> {
+            GridModel changedModel = event.getModel();
+            if (changedModel != null) {
+                MainFrame.this.gridSize.setText(changedModel.getRows() + "x" + changedModel.getColumns());
+                MainFrame.this.gridName.setText(changedModel.getGridName());
+                MainFrame.this.setTitle("A* Pathfinder (" + changedModel.getGridName() + ")");
             }
         });
         initComponents();
-        this.statusBar.putClientProperty(BasicStatusBarUI.AUTO_ADD_SEPARATOR, Boolean.valueOf(false));
-        this.aStarPathFinding.setModel(new GridModel(8, 12));
-        canvas.addGLEventListener(this.aStarPathFinding);
+        this.statusBar.putClientProperty(BasicStatusBarUI.AUTO_ADD_SEPARATOR, false);
+        this.controller.setModel(new GridModel(8, 12));
+        canvas.addGLEventListener(this.controller);
         this.glPanel.add(canvas);
+        postInitComponents(canvas, dialog);
+    }
+
+    private void postInitComponents(GLCanvas canvas, SplashDialog dialog) {
         final Animator animator = new Animator(canvas);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
-                new Thread(new Runnable() {
-                    public void run() {
-                        animator.stop();
-                        System.exit(0);
-                    }
+                new Thread(() -> {
+                    animator.stop();
+                    System.exit(0);
                 }).start();
             }
         });
@@ -142,6 +138,8 @@ public class MainFrame extends JFrame {
     }
 
     private void initComponents() {
+        setIconImage(ResourceLoader.createImageIcon("astar.png").getImage());
+
         this.toolBar = new JToolBar();
         this.calculateButton = new JButton();
         this.glPanel = new JPanel();
@@ -166,12 +164,8 @@ public class MainFrame extends JFrame {
         getContentPane().setLayout(new GridBagLayout());
         setDefaultCloseOperation(3);
         setTitle("A* Pathfinder");
-        this.calculateButton.setAction(new CalculateAction(this.aStarPathFinding.getModel()));
-        this.calculateButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                MainFrame.this.calculateButtonActionPerformed(evt);
-            }
-        });
+        this.calculateButton.setAction(new CalculateAction(this.controller.getModel()));
+        this.calculateButton.addActionListener(MainFrame.this::calculateButtonActionPerformed);
         this.toolBar.add(this.calculateButton);
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.fill = 2;
@@ -199,11 +193,11 @@ public class MainFrame extends JFrame {
         gridBagConstraints.weighty = 1.0D;
         getContentPane().add(this.glPanel, gridBagConstraints);
         this.fileMenu.setText("File");
-        this.newGridItem.setAction(new NewGridAction(this.aStarPathFinding));
+        this.newGridItem.setAction(new NewGridAction(this.controller));
         this.fileMenu.add(this.newGridItem);
-        this.openGridItem.setAction(new OpenGridAction(this.aStarPathFinding));
+        this.openGridItem.setAction(new OpenGridAction(this.controller));
         this.fileMenu.add(this.openGridItem);
-        this.saveGridItem.setAction(new SaveGridAction(this.aStarPathFinding));
+        this.saveGridItem.setAction(new SaveGridAction(this.controller));
         this.fileMenu.add(this.saveGridItem);
         this.fileMenu.add(this.jSeparator1);
         this.exitItem.setAction(new ExitProgramAction());
@@ -212,11 +206,11 @@ public class MainFrame extends JFrame {
         this.toolMenu.setText("Tools");
         this.cutCornersItem.setSelected(true);
         this.cutCornersItem.setText("Cut corners?");
-        this.cutCornersItem.setIcon(new ImageIcon(getClass().getResource("/org/chamberlain/resources/cut_corners.png")));
+        this.cutCornersItem.setIcon(ResourceLoader.createImageIcon("cut_corners.png"));
         this.toolMenu.add(this.cutCornersItem);
-        this.clearGridItem.setAction(new ClearGridAction(this.aStarPathFinding));
+        this.clearGridItem.setAction(new ClearGridAction(this.controller));
         this.toolMenu.add(this.clearGridItem);
-        this.openGlCapsDialogItem.setAction(new ShowOpenGLCapsDialogAction(this.aStarPathFinding.getCaps()));
+        this.openGlCapsDialogItem.setAction(new ShowOpenGLCapsDialogAction(this.controller.getCaps()));
         this.toolMenu.add(this.openGlCapsDialogItem);
         this.mainMenu.add(this.toolMenu);
         this.helpMenu.setText("Help");
@@ -230,8 +224,8 @@ public class MainFrame extends JFrame {
     private void calculateButtonActionPerformed(ActionEvent evt) {
         CalculateAction calculateAction = (CalculateAction) this.calculateButton.getAction();
         calculateAction.setCutCorners(this.cutCornersItem.isSelected());
-        calculateAction.setModel(this.aStarPathFinding.getModel());
-        aStarPathFinding.repaint();
+        calculateAction.setModel(this.controller.getModel());
+        controller.repaint();
     }
 
     public static void main(String[] args) {
@@ -246,13 +240,8 @@ public class MainFrame extends JFrame {
         }
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (InstantiationException ex) {
-            ex.printStackTrace();
-        } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
-        } catch (IllegalAccessException ex) {
-            ex.printStackTrace();
-        } catch (UnsupportedLookAndFeelException ex) {
+        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException
+                | UnsupportedLookAndFeelException ex) {
             ex.printStackTrace();
         }
         LookAndFeelFactory.installJideExtension(0);

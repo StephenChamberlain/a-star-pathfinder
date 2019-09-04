@@ -9,11 +9,10 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import org.chamberlain.IconLoader;
+import org.chamberlain.ResourceLoader;
 import org.chamberlain.MainFrame;
 
 public class CommonDialog extends StandardDialog {
@@ -31,8 +30,9 @@ public class CommonDialog extends StandardDialog {
         setBannerTitle(title);
     }
 
+    @Override
     public JComponent createBannerPanel() {
-        this.headerPanel = new BannerPanel(getBannerTitle(), getBannerText(), IconLoader.createImageIcon("warning.png", ""));
+        this.headerPanel = new BannerPanel(getBannerTitle(), getBannerText(), ResourceLoader.createImageIcon("warning.png"));
         this.headerPanel.setTitleIconLocation(7);
         this.headerPanel.setFont(new Font("Tahoma", 0, 11));
         this.headerPanel.setBackground(LIGHT_YELLOW);
@@ -40,24 +40,30 @@ public class CommonDialog extends StandardDialog {
         return this.headerPanel;
     }
 
+    @Override
     public JComponent createContentPanel() {
         return new JPanel();
     }
 
+    @Override
     public ButtonPanel createButtonPanel() {
         ButtonPanel buttonPanel = new ButtonPanel();
         JButton okButton = new JButton();
         JButton cancelButton = new JButton();
         buttonPanel.addButton(okButton);
         buttonPanel.addButton(cancelButton);
-        okButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.okButtonText"), IconLoader.createImageIcon("ok.png", "")) {
+        okButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.okButtonText"),
+                ResourceLoader.createImageIcon("ok.png")) {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 CommonDialog.this.setDialogResult(0);
                 CommonDialog.this.setVisible(false);
                 CommonDialog.this.dispose();
             }
         });
-        cancelButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.cancelButtonText"), IconLoader.createImageIcon("cancel.png", "")) {
+        cancelButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.cancelButtonText"), 
+                ResourceLoader.createImageIcon("cancel.png")) {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 CommonDialog.this.setDialogResult(-1);
                 CommonDialog.this.setVisible(false);

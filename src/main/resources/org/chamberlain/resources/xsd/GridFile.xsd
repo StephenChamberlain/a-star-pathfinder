@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="Model">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Rows" type="xs:integer"/>
+                <xs:element name="Columns" type="xs:integer"/>
+                <xs:element ref="GridData"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="GridData">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="Square" minOccurs="2" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="Square">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Obstacle" type="xs:integer"/>
+                <xs:element name="StartPoint" type="xs:integer"/>
+                <xs:element name="FinishPoint" type="xs:integer"/>
+            </xs:sequence>
+        </xs:complexType>    
+    </xs:element>
+</xs:schema> 

@@ -2,32 +2,28 @@ package org.chamberlain.actions;
 
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
-import org.chamberlain.IconLoader;
+import org.chamberlain.ResourceLoader;
 
 public class OpenHelpAction extends AbstractAction {
 
-    private static String desc = "Opens an XML grid file";
+    private static final String DESC = "Opens an XML grid file";
 
     public OpenHelpAction() {
-        super("Help", IconLoader.createImageIcon("help.png", ""));
-        putValue("ShortDescription", desc);
+        super("Help", ResourceLoader.createImageIcon("help.png"));
+        putValue("ShortDescription", DESC);
         putValue("AcceleratorKey", KeyStroke.getKeyStroke("F1"));
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            Process proc = Runtime.getRuntime().exec("cmd /c Application\\Help\\help.html");
-            InputStream stderr = proc.getErrorStream();
-            InputStreamReader isr = new InputStreamReader(stderr);
-            BufferedReader br = new BufferedReader(isr);
-            String line = null;
-            while ((line = br.readLine()) != null);
-            int exitVal = proc.waitFor();
-        } catch (Exception err) {
+            Runtime.getRuntime().exec("cmd /c Application\\Help\\help.html");
+        } catch (IOException err) {
             err.printStackTrace();
         }
     }

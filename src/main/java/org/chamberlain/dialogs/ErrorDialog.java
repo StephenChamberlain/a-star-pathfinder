@@ -12,6 +12,7 @@ public class ErrorDialog extends CommonDialog {
         super("Error!");
     }
 
+    @Override
     public JComponent createContentPanel() {
         JPanel panel = new JPanel();
         panel.add(new JLabel(this.text));

@@ -7,8 +7,8 @@ import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.chamberlain.AStarPathFinding;
-import org.chamberlain.IconLoader;
+import org.chamberlain.Controller;
+import org.chamberlain.ResourceLoader;
 import org.chamberlain.MainFrame;
 import org.chamberlain.model.Square;
 import org.chamberlain.utils.XMLFileFilter;
@@ -18,18 +18,19 @@ import org.w3c.dom.Element;
 
 public class SaveGridAction extends AbstractAction {
 
-    private static String desc = "Saves the current grid";
+    private static final String DESC = "Saves the current grid";
 
-    private AStarPathFinding aStar;
+    private Controller aStar;
 
-    public SaveGridAction(AStarPathFinding aStar) {
-        super("Save", IconLoader.createImageIcon("save.png", ""));
+    public SaveGridAction(Controller aStar) {
+        super("Save", ResourceLoader.createImageIcon("save.png"));
         this.aStar = aStar;
-        putValue("ShortDescription", desc);
+        putValue("ShortDescription", DESC);
         putValue("AcceleratorKey", KeyStroke.getKeyStroke(83, 128));
         putValue("MnemonicKey", Integer.valueOf(83));
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         JFileChooser chooser = new JFileChooser();
         XMLFileFilter filter = new XMLFileFilter();
@@ -56,7 +57,7 @@ public class SaveGridAction extends AbstractAction {
             Element columns = document.createElement("Columns");
             columns.appendChild(document.createTextNode("" + this.aStar.getModel().getColumns()));
             Element data = document.createElement("GridData");
-            for (Square square : this.aStar.getModel().getGrid()) {
+            this.aStar.getModel().getGrid().stream().map(square -> {
                 Element squareNode = document.createElement("Square");
                 Element obstacle = document.createElement("Obstacle");
                 obstacle.appendChild(document.createTextNode("" + (square.isObstacle() ? "1" : "0")));
@@ -67,8 +68,10 @@ public class SaveGridAction extends AbstractAction {
                 Element finish = document.createElement("FinishPoint");
                 finish.appendChild(document.createTextNode("" + (square.isFinishPoint() ? "1" : "0")));
                 squareNode.appendChild(finish);
+                return squareNode;
+            }).forEachOrdered(squareNode -> {
                 data.appendChild(squareNode);
-            }
+            });
             modelRoot.appendChild(rows);
             modelRoot.appendChild(columns);
             modelRoot.appendChild(data);

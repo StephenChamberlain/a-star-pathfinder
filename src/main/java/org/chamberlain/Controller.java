@@ -1,6 +1,5 @@
 package org.chamberlain;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
@@ -21,36 +20,23 @@ import org.chamberlain.model.GridModelChangedEvent;
 import org.chamberlain.model.GridModelListener;
 import org.chamberlain.model.Square;
 
-public class AStarPathFinding implements GLEventListener, KeyListener, MouseListener, MouseMotionListener {
+public class Controller implements GLEventListener, KeyListener, MouseListener, MouseMotionListener {
 
-    private List<GridModelListener> registeredListeners;
-
-    private GridModel model;
+    private final List<GridModelListener> registeredListeners;
+    private final GLCapabilities caps;
+    private final GLCanvas canvas;
+    private final GridPopupMenu popUp;
 
     private GLU glu;
-
-    private GLCapabilities caps;
-
-    private GLCanvas canvas;
-
-    private MouseEvent mouse;
-
+    private GridModel model;
+    private MouseEvent mouseEvent;
     private double currentMousePointX;
-
     private double currentMousePointY;
-
     private Square underMouse;
 
-    private GridPopupMenu popUp;
-
-    public AStarPathFinding(GLCanvas canvas) {
+    public Controller(GLCanvas canvas) {
         this.registeredListeners = new ArrayList();
-        registeredListeners.add(new GridModelListener() {
-            @Override
-            public void gridModelChanged(GridModelChangedEvent paramGridModelChangedEvent) {
-                repaint();
-            }
-        });
+        addCanvasRepainter();
         this.canvas = canvas;
         this.caps = new GLCapabilities(GLProfile.getDefault());
         canvas.addGLEventListener(this);
@@ -60,16 +46,21 @@ public class AStarPathFinding implements GLEventListener, KeyListener, MouseList
         this.popUp = new GridPopupMenu(this);
     }
 
+    private void addCanvasRepainter() {
+        this.registeredListeners.add(e -> repaint());
+    }
+
+    @Override
     public void init(GLAutoDrawable drawable) {
-        GL gl = drawable.getGL();
         this.glu = new GLU();
     }
 
+    @Override
     public void display(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
         gl.glClear(16640);
         gl.glLoadIdentity();
-        for (Square square : getModel().getGrid()) {
+        getModel().getGrid().stream().forEach(square -> {
             gl.glBegin(7);
             List<Square> open = null;
             List<Square> closed = null;
@@ -110,11 +101,12 @@ public class AStarPathFinding implements GLEventListener, KeyListener, MouseList
             gl.glVertex2f((float) square.getBottomLeft().getX(), (float) square.getBottomLeft().getY());
             gl.glVertex2f((float) square.getTopLeft().getX(), (float) square.getTopLeft().getY());
             gl.glEnd();
-        }
+        });
         mouseMoveChecker(gl, false);
         gl.glFlush();
     }
 
+    @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         GL2 gl = drawable.getGL().getGL2();
         gl.glViewport(0, 0, width, height);
@@ -126,26 +118,31 @@ public class AStarPathFinding implements GLEventListener, KeyListener, MouseList
         System.out.println("Resized to " + width + "x" + height);
     }
 
-    public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
-    }
-
+    @Override
     public void keyTyped(KeyEvent key) {
+        // Do nothing...
     }
 
+    @Override
     public void keyPressed(KeyEvent key) {
         switch (key.getKeyCode()) {
-            case 27:
+            case KeyEvent.VK_ESCAPE:
                 System.exit(0);
                 break;
         }
     }
 
+    @Override
     public void keyReleased(KeyEvent key) {
+        // Do nothing...
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
+        // Do nothing...
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == 1) {
             if (this.underMouse != null) {
@@ -160,20 +157,29 @@ public class AStarPathFinding implements GLEventListener, KeyListener, MouseList
         }
     }
 
+    @Override
     public void mouseReleased(MouseEvent e) {
+        // Do nothing...
     }
 
+    @Override
     public void mouseEntered(MouseEvent e) {
+        // Do nothing...
     }
 
+    @Override
     public void mouseExited(MouseEvent e) {
+        // Do nothing...
     }
 
     private boolean isUnderMouse(Square square) {
         if (square == null) {
             return false;
         }
-        if (this.currentMousePointX >= square.getTopLeft().getX() && this.currentMousePointX <= square.getTopRight().getX() && this.currentMousePointY <= square.getTopLeft().getY() && this.currentMousePointY >= square.getBottomLeft().getY()) {
+        if (this.currentMousePointX >= square.getTopLeft().getX()
+                && this.currentMousePointX <= square.getTopRight().getX()
+                && this.currentMousePointY <= square.getTopLeft().getY()
+                && this.currentMousePointY >= square.getBottomLeft().getY()) {
             if (square != this.underMouse) {
                 this.underMouse = square;
                 this.popUp.setVisible(false);
@@ -183,43 +189,38 @@ public class AStarPathFinding implements GLEventListener, KeyListener, MouseList
         return false;
     }
 
-    public GLU getGlu() {
-        return this.glu;
-    }
-
-    public void setGlu(GLU glu) {
-        this.glu = glu;
-    }
-
+    @Override
     public void mouseDragged(MouseEvent e) {
+        // Do nothing...
     }
 
+    @Override
     public void mouseMoved(MouseEvent e) {
-        this.mouse = e;
+        this.mouseEvent = e;
     }
 
     private void mouseMoveChecker(GL2 gl, boolean printDetails) {
-        if (this.mouse != null) {
-            int x = this.mouse.getX(), y = this.mouse.getY();
+        if (this.mouseEvent != null) {
+            int x = this.mouseEvent.getX(), y = this.mouseEvent.getY();
             int[] viewport = new int[4];
             double[] mvmatrix = new double[16];
             double[] projmatrix = new double[16];
-            int realy = 0;
+            int realY;
             double[] wcoord = new double[4];
             gl.glGetIntegerv(2978, viewport, 0);
             gl.glGetDoublev(2982, mvmatrix, 0);
             gl.glGetDoublev(2983, projmatrix, 0);
-            realy = viewport[3] - y - 1;
+            realY = viewport[3] - y - 1;
             if (printDetails) {
-                System.out.println("\nCoordinates at cursor are (" + x + ", " + realy);
+                System.out.println("\nCoordinates at cursor are (" + x + ", " + realY);
             }
-            this.glu.gluUnProject(x, realy, 0.0D, mvmatrix, 0, projmatrix, 0, viewport, 0, wcoord, 0);
+            this.glu.gluUnProject(x, realY, 0.0D, mvmatrix, 0, projmatrix, 0, viewport, 0, wcoord, 0);
             if (printDetails) {
                 System.out.println("World coords at z=0.0 are ( " + wcoord[0] + ", " + wcoord[1] + ", " + wcoord[2] + ")");
             }
             this.currentMousePointX = wcoord[0];
             this.currentMousePointY = wcoord[1];
-            this.glu.gluUnProject(x, realy, 1.0D, mvmatrix, 0, projmatrix, 0, viewport, 0, wcoord, 0);
+            this.glu.gluUnProject(x, realY, 1.0D, mvmatrix, 0, projmatrix, 0, viewport, 0, wcoord, 0);
             if (printDetails) {
                 System.out.println("World coords at z=1.0 are (" + wcoord[0] + ", " + wcoord[1] + ", " + wcoord[2] + ")");
             }
@@ -236,9 +237,8 @@ public class AStarPathFinding implements GLEventListener, KeyListener, MouseList
 
     public void setModel(GridModel model) {
         this.model = model;
-        for (GridModelListener listener : this.registeredListeners) {
-            listener.gridModelChanged(new GridModelChangedEvent(this.model));
-        }
+        this.registeredListeners.forEach(listener
+                -> listener.gridModelChanged(new GridModelChangedEvent(this.model)));
     }
 
     public void removeRegisteredListener(GridModelListener listener) {
@@ -251,7 +251,7 @@ public class AStarPathFinding implements GLEventListener, KeyListener, MouseList
 
     @Override
     public void dispose(GLAutoDrawable glad) {
-
+        // Do nothing...
     }
 
     void repaint() {

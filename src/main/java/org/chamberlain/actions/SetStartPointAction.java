@@ -2,28 +2,27 @@ package org.chamberlain.actions;
 
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
-import org.chamberlain.AStarPathFinding;
-import org.chamberlain.IconLoader;
+import org.chamberlain.Controller;
+import org.chamberlain.ResourceLoader;
 import org.chamberlain.model.Square;
 
 public class SetStartPointAction extends AbstractAction {
 
-    private static String desc = "Sets the starting point";
+    private static final String DESC = "Sets the starting point";
 
     private Square currentSquare;
 
-    private AStarPathFinding aStar;
+    private final Controller aStar;
 
-    public SetStartPointAction(AStarPathFinding aStar) {
-        super("Set start point", IconLoader.createImageIcon("start.png", ""));
+    public SetStartPointAction(Controller aStar) {
+        super("Set start point", ResourceLoader.createImageIcon("start.png"));
         this.aStar = aStar;
-        putValue("ShortDescription", desc);
+        putValue("ShortDescription", DESC);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
-        for (Square square : this.aStar.getModel().getGrid()) {
-            square.setStartPoint(false);
-        }
+        this.aStar.getModel().getGrid().forEach(square -> square.setStartPoint(false));
         this.currentSquare.setStartPoint(!this.currentSquare.isStartPoint());
     }
 

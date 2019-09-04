@@ -3,25 +3,26 @@ package org.chamberlain.actions;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
-import org.chamberlain.AStarPathFinding;
-import org.chamberlain.IconLoader;
+import org.chamberlain.Controller;
+import org.chamberlain.ResourceLoader;
 import org.chamberlain.MainFrame;
 import org.chamberlain.dialogs.CommonDialog;
 
 public class ClearGridAction extends AbstractAction {
 
-    private static String desc = "Clears the current grid of obstacles, start, finish and lists";
+    private static final String DESC = "Clears the current grid of obstacles, start, finish and lists";
 
-    private AStarPathFinding aStar;
+    private Controller aStar;
 
-    public ClearGridAction(AStarPathFinding aStar) {
-        super("Reset", IconLoader.createImageIcon("clear.png", ""));
+    public ClearGridAction(Controller aStar) {
+        super("Reset", ResourceLoader.createImageIcon("clear.png"));
         this.aStar = aStar;
-        putValue("ShortDescription", desc);
+        putValue("ShortDescription", DESC);
         putValue("AcceleratorKey", KeyStroke.getKeyStroke(82, 128));
         putValue("MnemonicKey", Integer.valueOf(82));
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (confirm()) {
             this.aStar.getModel().clear();

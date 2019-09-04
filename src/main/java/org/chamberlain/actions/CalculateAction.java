@@ -2,32 +2,33 @@ package org.chamberlain.actions;
 
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
-import org.chamberlain.IconLoader;
-import org.chamberlain.model.Calculation;
+import org.chamberlain.ResourceLoader;
+import org.chamberlain.model.AStarAlgorithm;
 import org.chamberlain.model.GridModel;
 
 public class CalculateAction extends AbstractAction {
 
-    private static String desc = "Calculates the path between the start point and the end point";
+    private static final String DESC = "Calculates the path between the start point and the end point";
 
     private GridModel model;
 
-    private Calculation calc;
+    private AStarAlgorithm calc;
 
     private boolean cutCorners = true;
 
     public CalculateAction(GridModel model) {
-        super("Calculate path", IconLoader.createImageIcon("calculate.png", ""));
+        super("Calculate path", ResourceLoader.createImageIcon("calculate.png"));
         setModel(model);
-        putValue("ShortDescription", desc);
+        putValue("ShortDescription", DESC);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
-        this.calc = new Calculation(getModel(), cutCorners());
+        this.calc = new AStarAlgorithm(getModel(), cutCorners());
         getCalc().calculate();
     }
 
-    public Calculation getCalc() {
+    public AStarAlgorithm getCalc() {
         return this.calc;
     }
 

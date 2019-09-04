@@ -5,8 +5,8 @@ import java.io.File;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
-import org.chamberlain.AStarPathFinding;
-import org.chamberlain.IconLoader;
+import org.chamberlain.Controller;
+import org.chamberlain.ResourceLoader;
 import org.chamberlain.MainFrame;
 import org.chamberlain.model.GridModel;
 import org.chamberlain.model.Square;
@@ -18,22 +18,23 @@ import org.w3c.dom.NodeList;
 
 public class OpenGridAction extends AbstractAction {
 
-    private static String desc = "Opens an XML grid file";
+    private static final String DESC = "Opens an XML grid file";
 
-    private AStarPathFinding aStar;
+    private Controller aStar;
 
     private XMLReader reader;
 
     private String filePath;
 
-    public OpenGridAction(AStarPathFinding aStar) {
-        super("Open", IconLoader.createImageIcon("open.png", ""));
+    public OpenGridAction(Controller aStar) {
+        super("Open", ResourceLoader.createImageIcon("open.png"));
         this.aStar = aStar;
-        putValue("ShortDescription", desc);
+        putValue("ShortDescription", DESC);
         putValue("AcceleratorKey", KeyStroke.getKeyStroke(79, 128));
         putValue("MnemonicKey", Integer.valueOf(79));
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (showOpenDialog()) {
             this.reader = new XMLReader();

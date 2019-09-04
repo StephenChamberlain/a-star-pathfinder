@@ -30,10 +30,19 @@ public class Square {
 
     private GridSide side;
 
+    /**
+     * The f value of the goal is the cost of the shortest path.
+     */
     private double F;
 
+    /**
+     *  g(n) is the cost of the path from the start node to the next node.
+     */
     private int G;
 
+    /**
+     * H is a heuristic function that estimates the cost of the cheapest path from the next node to the goal.
+     */
     private double H;
 
     public Square(Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int index) {

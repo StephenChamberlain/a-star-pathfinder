@@ -7,29 +7,23 @@ import org.chamberlain.MainFrame;
 import org.chamberlain.dialogs.ErrorDialog;
 import org.chamberlain.dialogs.FailedConditionDialog;
 
-public class Calculation {
+public final class AStarAlgorithm {
 
     public static final int MOVE_COST = 10;
-
     public static final int MOVE_COST_DIAGONAL = 14;
 
-    private GridModel model;
+    private final GridModel model;
+    private final List<Square> open;
+    private final List<Square> closed;
+    private final List<Square> unwalkable;
 
     private Square start;
-
     private Square finish;
 
-    private List<Square> open;
-
-    private List<Square> closed;
-
-    private List<Square> unwalkable;
-
     private boolean pathFound;
-
     private boolean cutCorners;
 
-    public Calculation(GridModel model, boolean cutCorners) {
+    public AStarAlgorithm(GridModel model, boolean cutCorners) {
         this.start = null;
         this.finish = null;
         this.open = new ArrayList();
@@ -50,7 +44,7 @@ public class Calculation {
                 Square[] currentNodes = getSurroundingNodes(leadSquare);
                 if (noCandidates(currentNodes)) {
                     this.unwalkable.add(leadSquare);
-                    if (this.closed.size() == 0) {
+                    if (this.closed.isEmpty()) {
                         ErrorDialog dialog = new ErrorDialog();
                         dialog.setText("No path possible!");
                         dialog.pack();
@@ -80,6 +74,9 @@ public class Calculation {
                 this.closed.add(leadSquare);
                 this.open.remove(leadSquare);
                 leadSquare = newLeadSquare;
+                if (leadSquare == null) {
+                    continue;
+                }
                 System.out.println("F=" + leadSquare.getF());
                 getOpen().add(leadSquare);
                 if (newLeadSquare.getCentralPoint().equals(getFinish().getCentralPoint())) {
@@ -108,8 +105,7 @@ public class Calculation {
         int BOTTOM = 5;
         int BOTTOM_RIGHT = 6;
         int LEFT = 7;
-        int index = -1;
-        index = leadSquare.getIndex() + this.model.getColumns() - 1;
+        int index = leadSquare.getIndex() + this.model.getColumns() - 1;
         if (index < this.model.getGrid().size() && index > 0 && !this.unwalkable.contains(this.model.getGrid().get(index)) && !this.closed.contains(this.model.getGrid().get(index))) {
             currentNodes[TOP_LEFT] = (Square) this.model.getGrid().get(index);
             currentNodes[TOP_LEFT].setG(14);
@@ -189,22 +185,29 @@ public class Calculation {
                 currentNodes[i] = null;
             }
         }
-        if (leadSquare.getSide() == GridSide.LEFT) {
-            currentNodes[TOP_LEFT] = null;
-            currentNodes[LEFT] = null;
-            currentNodes[BOTTOM_LEFT] = null;
-        } else if (leadSquare.getSide() == GridSide.RIGHT) {
-            currentNodes[TOP_RIGHT] = null;
-            currentNodes[RIGHT] = null;
-            currentNodes[BOTTOM_RIGHT] = null;
-        } else if (leadSquare.getSide() == GridSide.TOP) {
-            currentNodes[TOP_LEFT] = null;
-            currentNodes[TOP] = null;
-            currentNodes[TOP_RIGHT] = null;
-        } else if (leadSquare.getSide() == GridSide.BOTTOM) {
-            currentNodes[BOTTOM_LEFT] = null;
-            currentNodes[BOTTOM] = null;
-            currentNodes[BOTTOM_RIGHT] = null;
+        if (null != leadSquare.getSide()) switch (leadSquare.getSide()) {
+            case LEFT:
+                currentNodes[TOP_LEFT] = null;
+                currentNodes[LEFT] = null;
+                currentNodes[BOTTOM_LEFT] = null;
+                break;
+            case RIGHT:
+                currentNodes[TOP_RIGHT] = null;
+                currentNodes[RIGHT] = null;
+                currentNodes[BOTTOM_RIGHT] = null;
+                break;
+            case TOP:
+                currentNodes[TOP_LEFT] = null;
+                currentNodes[TOP] = null;
+                currentNodes[TOP_RIGHT] = null;
+                break;
+            case BOTTOM:
+                currentNodes[BOTTOM_LEFT] = null;
+                currentNodes[BOTTOM] = null;
+                currentNodes[BOTTOM_RIGHT] = null;
+                break;
+            default:
+                break;
         }
         return currentNodes;
     }

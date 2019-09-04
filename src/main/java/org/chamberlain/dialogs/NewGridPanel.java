@@ -20,16 +20,16 @@ public class NewGridPanel extends JPanel {
 
     public NewGridPanel(int currentColumns, int currentRows) {
         initComponents();
-        this.columns.setValue(Integer.valueOf(currentColumns));
-        this.rows.setValue(Integer.valueOf(currentRows));
+        this.columns.setValue(currentColumns);
+        this.rows.setValue(currentRows);
     }
 
     public int getRows() {
-        return ((Integer) this.rows.getValue()).intValue();
+        return ((Integer) this.rows.getValue());
     }
 
     public int getColumns() {
-        return ((Integer) this.columns.getValue()).intValue();
+        return ((Integer) this.columns.getValue());
     }
 
     private void initComponents() {

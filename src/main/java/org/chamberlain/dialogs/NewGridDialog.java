@@ -1,15 +1,14 @@
 package org.chamberlain.dialogs;
 
 import javax.swing.JComponent;
-import org.chamberlain.IconLoader;
+import org.chamberlain.ResourceLoader;
 
 public class NewGridDialog extends CommonDialog {
 
+    private final int currentColumns;
+    private final int currentRows;
+    
     private NewGridPanel panel;
-
-    private int currentColumns;
-
-    private int currentRows;
 
     public NewGridDialog(int currentColumns, int currentRows) {
         super("New grid");
@@ -18,12 +17,14 @@ public class NewGridDialog extends CommonDialog {
         setBannerText("Please specify the size of the new grid in columns (width) and rows (height)");
     }
 
+    @Override
     public JComponent createBannerPanel() {
         super.createBannerPanel();
-        this.headerPanel.setTitleIcon(IconLoader.createImageIcon("new32.png", ""));
+        this.headerPanel.setTitleIcon(ResourceLoader.createImageIcon("new32.png"));
         return this.headerPanel;
     }
 
+    @Override
     public JComponent createContentPanel() {
         this.panel = new NewGridPanel(this.currentColumns, this.currentRows);
         return this.panel;

@@ -7,18 +7,18 @@ import org.chamberlain.model.Square;
 
 public class GridPopupMenu extends JPopupMenu {
 
+    private final SetStartPointAction setStartPointAction;
+    private final SetFinishPointAction setFinishPointAction;
+
     private Square currentSquare;
 
-    private AStarPathFinding aStar;
-
-    private SetStartPointAction setStartPointAction;
-
-    private SetFinishPointAction setFinishPointAction;
-
-    public GridPopupMenu(AStarPathFinding aStar) {
-        this.aStar = aStar;
+    public GridPopupMenu(Controller aStar) {
         this.setStartPointAction = new SetStartPointAction(aStar);
         this.setFinishPointAction = new SetFinishPointAction(aStar);
+        initGui();
+    }
+
+    private void initGui() {
         add(this.setStartPointAction);
         add(this.setFinishPointAction);
     }

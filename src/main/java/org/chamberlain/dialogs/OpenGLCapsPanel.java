@@ -27,12 +27,12 @@ public class OpenGLCapsPanel extends JPanel {
         capsString = capsString.replaceAll("\\[", "");
         capsString = capsString.replaceAll("\\]", "");
         capsString = capsString.replaceAll(":", ",");
-        String[] capsArray = capsString.split(",");
+        String[] capabilities = capsString.split(",");
         DefaultTableModel model = (DefaultTableModel) this.capsTable.getModel();
         System.out.println("OpenGL Capabilities");
-        for (int index = 0; index < capsArray.length; index++) {
-            model.addRow(new Object[]{capsArray[index].trim()});
-            System.out.println(capsArray[index].trim());
+        for (String capability : capabilities) {
+            model.addRow(new Object[]{capability.trim()});
+            System.out.println(capability.trim());
         }
     }
 

@@ -1,23 +1,25 @@
 package org.chamberlain.dialogs;
 
 import javax.swing.JComponent;
-import org.chamberlain.IconLoader;
+import org.chamberlain.ResourceLoader;
 
 public class FailedConditionDialog extends CommonDialog {
 
-    private String message;
+    private final String message;
 
     public FailedConditionDialog(String message) {
         super("Failed calculation condition!");
         this.message = message;
     }
 
+    @Override
     public JComponent createBannerPanel() {
         super.createBannerPanel();
-        this.headerPanel.setTitleIcon(IconLoader.createImageIcon("error.png", ""));
+        this.headerPanel.setTitleIcon(ResourceLoader.createImageIcon("error.png"));
         return this.headerPanel;
     }
 
+    @Override
     public JComponent createContentPanel() {
         return new FailedConditionPanel(this.message);
     }
