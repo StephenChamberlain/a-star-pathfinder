@@ -20,7 +20,7 @@ public class OpenHelpAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent e) {
         try {
-            Process proc = Runtime.getRuntime().exec("cmd /c Application\\help.HLP");
+            Process proc = Runtime.getRuntime().exec("cmd /c Application\\Help\\help.html");
             InputStream stderr = proc.getErrorStream();
             InputStreamReader isr = new InputStreamReader(stderr);
             BufferedReader br = new BufferedReader(isr);
