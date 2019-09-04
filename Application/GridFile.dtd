@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!ELEMENT Model (GridData|Columns|Rows)*>
+<!ELEMENT Rows (#PCDATA)>
+<!ELEMENT Columns (#PCDATA)>
+<!ELEMENT GridData (Square)*>
+<!ELEMENT Square (FinishPoint|StartPoint|Obstacle)*>
+<!ELEMENT Obstacle (#PCDATA)>
+<!ELEMENT StartPoint (#PCDATA)>
+<!ELEMENT FinishPoint (#PCDATA)>

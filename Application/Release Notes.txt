@@ -1,0 +1,30 @@
+A* Pathfinder - Release date Summer 2007
+----------------------------------------
+
+* Java/OpenGL implementation of the A* pathfinding algorithm.
+* Includes the ability to edit the grid with obstacles and a set start and end points.
+* Comes with a number of pre-designed grids to experiment with.
+
+KNOWN ISSUES:
+-------------
+
+* When opening a grid, you may get some errors, just click through them and the grid should load.
+
+
+Third Party Libraries:
+----------------------
+
+* JOGL (OpenGL)
+* NetBeans IDE 5.5 + JOGL Module Plugins
+* Swing/SWingX
+* JIDE Common Layer
+
+Other Software:
+---------------
+
+* Advanced Installer
+* Help Creator
+
+
+
+- Stephen Chamberlain. 
